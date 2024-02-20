@@ -1,11 +1,11 @@
-﻿using System.Globalization;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using WeMoney.Models.Base;
 using WeMoney.Models.Constants;
 using WeMoney.Models.Entities;
+using WeMoney.Models.Enums;
 using WeMoney.Models.Request.Auth;
 using WeMoney.Services;
 
@@ -66,8 +66,7 @@ public class AuthController(
             new(JwtRegisteredClaimNames.Sub, jwtSettings.Value.Subject),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
-            new(ClaimTypes.Email, user.Email),
-            new(ClaimTypes.NameIdentifier, user.Id!)
+            new(ClaimType.Id, user.Id!)
         };
 
         var token = tokenService.GenerateAccessToken(claims);
