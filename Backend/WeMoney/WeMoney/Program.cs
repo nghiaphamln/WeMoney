@@ -51,28 +51,35 @@ builder.Services.AddSwaggerGen(option =>
 });
 
 
-builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(options =>
-    {
-        options.IncludeErrorDetails = true;
-        options.TokenValidationParameters = new TokenValidationParameters()
+builder
+    .Services
+    .AddAuthentication(
+        options =>
         {
-            ClockSkew = TimeSpan.Zero,
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidAudience = builder.Configuration["JwtSettings:Audience"],
-            ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
-            IssuerSigningKey =
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]!))
-        };
-    });
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        }
+    )
+    .AddJwtBearer(
+        options =>
+        {
+            options.RequireHttpsMetadata = false;
+            options.IncludeErrorDetails = true;
+            options.TokenValidationParameters = new TokenValidationParameters()
+            {
+                ClockSkew = TimeSpan.Zero,
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidAudience = builder.Configuration["JwtSettings:Audience"],
+                ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+                IssuerSigningKey =
+                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]!))
+            };
+        }
+    );
 
 var app = builder.Build();
 
@@ -82,12 +89,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-app.UseMiddleware<RequestTimingMiddleware>();
-
 app.UseAuthentication();
+app.UseRouting();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseHttpsRedirection();
+app.UseMiddleware<RequestTimingMiddleware>();
 
 app.Run();

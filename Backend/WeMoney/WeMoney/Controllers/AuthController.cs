@@ -14,22 +14,22 @@ namespace WeMoney.Controllers;
 [ApiController]
 [Route("api/v1/auth")]
 public class AuthController(
-    UserService userService, 
+    UserService userService,
     TokenService tokenService,
     PasswordHasher passwordHasher,
     IOptions<JwtSettings> jwtSettings
 ) : ControllerBase
 {
     [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterRequest request)
+    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         if (ModelState.IsValid is false)
         {
             return BadRequest(ModelState);
         }
-        
+
         var user = await userService.GetByEmailAsync(request.Email);
-        
+
         if (user is not null)
         {
             return Conflict(new BaseResponse("Email đã tồn tại"));
@@ -46,26 +46,26 @@ public class AuthController(
 
         return Created();
     }
-    
+
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginRequest request)
+    public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         if (ModelState.IsValid is false)
         {
             return BadRequest(ModelState);
         }
-        
+
         var user = await userService.GetByEmailAsync(request.Email);
         if (user is null || !passwordHasher.Compare(request.Password, user.Password))
         {
             return Unauthorized(new BaseResponse("Email hoặc mật khẩu không chính xác"));
         }
-        
+
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, jwtSettings.Value.Subject),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)),
+            new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
             new(ClaimTypes.Email, user.Email),
             new(ClaimTypes.NameIdentifier, user.Id!)
         };
