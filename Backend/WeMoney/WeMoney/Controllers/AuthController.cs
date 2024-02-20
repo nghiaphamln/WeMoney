@@ -39,7 +39,8 @@ public class AuthController(
         {
             FullName = request.FullName,
             Password = passwordHasher.Hash(request.Password),
-            Email = request.Email
+            Email = request.Email,
+            Role = nameof(RoleEnum.User)
         };
 
         await userService.CreateAsync(user);
@@ -66,7 +67,8 @@ public class AuthController(
             new(JwtRegisteredClaimNames.Sub, jwtSettings.Value.Subject),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
-            new(ClaimType.Id, user.Id!)
+            new(ClaimType.Id, user.Id!),
+            new(ClaimTypes.Role, user.Role)
         };
 
         var token = tokenService.GenerateAccessToken(claims);

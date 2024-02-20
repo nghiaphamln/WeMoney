@@ -1,4 +1,4 @@
-﻿namespace WeMoney.Models.Enums;
+﻿namespace WeMoney.Models.Constants;
 
 public static class ClaimType
 {

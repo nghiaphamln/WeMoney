@@ -12,6 +12,7 @@ public class User
 
     public string FullName { get; set; } = null!;
     public string Email { get; set; } = null!;
+    public string Role { get; set; } = null!;
     public string Password { get; set; } = null!;
     public string Avatar { get; set; } = "/images/no-avatar.jpeg";
     public string? RefreshToken { get; set; }

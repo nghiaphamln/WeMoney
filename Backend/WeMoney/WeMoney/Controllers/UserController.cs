@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WeMoney.Models.Enums;
+using WeMoney.Models.Constants;
 using WeMoney.Services;
 
 namespace WeMoney.Controllers;
