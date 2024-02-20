@@ -25,7 +25,7 @@ public class UserService
 
     public async Task<User?> GetByIdAsync(string id) =>
         await _userCollection
-            .Find(user => user.Email.Equals(id))
+            .Find(user => user.Id!.Equals(id))
             .Limit(1)
             .SingleOrDefaultAsync();
 

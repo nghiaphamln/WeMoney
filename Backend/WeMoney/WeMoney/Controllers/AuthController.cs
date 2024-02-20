@@ -1,6 +1,8 @@
-﻿using System.Security.Claims;
+﻿using System.Globalization;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.JsonWebTokens;
 using WeMoney.Models.Base;
 using WeMoney.Models.Constants;
 using WeMoney.Models.Entities;
@@ -15,7 +17,7 @@ public class AuthController(
     UserService userService, 
     TokenService tokenService,
     PasswordHasher passwordHasher,
-    IOptions<AppSettings> options
+    IOptions<JwtSettings> jwtSettings
 ) : ControllerBase
 {
     [HttpPost("register")]
@@ -61,15 +63,18 @@ public class AuthController(
         
         var claims = new List<Claim>
         {
+            new(JwtRegisteredClaimNames.Sub, jwtSettings.Value.Subject),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)),
             new(ClaimTypes.Email, user.Email),
             new(ClaimTypes.NameIdentifier, user.Id!)
         };
 
         var token = tokenService.GenerateAccessToken(claims);
-        var refreshToken = tokenService.GenerateRefreshToken();
+        var refreshToken = TokenService.GenerateRefreshToken();
 
         user.RefreshToken = refreshToken;
-        user.RefreshTokenExpiryTime = DateTime.Now.AddDays(options.Value.JwtLifeRefreshToken);
+        user.RefreshTokenExpiryTime = DateTime.Now.AddDays(jwtSettings.Value.JwtLifeRefreshToken);
 
         await userService.UpdateAsync(user);
 

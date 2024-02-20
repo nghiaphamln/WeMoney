@@ -5,11 +5,11 @@ using WeMoney.Models.Constants;
 
 namespace WeMoney.Services;
 
-public class PasswordHasher(IOptions<AppSettings> options)
+public class PasswordHasher(IOptions<JwtSettings> jwtSettings)
 {
     public string Hash(string password)
     {
-        var saltKey = options.Value.SecretKey;
+        var saltKey = jwtSettings.Value.SecretKey;
         var salt = Encoding.UTF8.GetBytes(saltKey);
         var passwordHashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
             password: password,

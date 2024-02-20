@@ -8,50 +8,27 @@ using WeMoney.Models.Constants;
 
 namespace WeMoney.Services;
 
-public class TokenService(IOptions<AppSettings> options)
+public class TokenService(IOptions<JwtSettings> jwtSettings)
 {
     public string GenerateAccessToken(IEnumerable<Claim> claims)
     {
-        var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Value.SecretKey));
+        var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Value.SecretKey));
         var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
         var tokenOptions = new JwtSecurityToken(
-            claims: claims,
-            expires: DateTime.Now.AddMinutes(60),
+            jwtSettings.Value.Issuer,
+            jwtSettings.Value.Audience,
+            claims,
+            expires: DateTime.UtcNow.AddMinutes(60),
             signingCredentials: signinCredentials
         );
-        var tokenString = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
-        return tokenString;
+        return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
     }
 
-    public string GenerateRefreshToken()
+    public static string GenerateRefreshToken()
     {
         var randomNumber = new byte[64];
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(randomNumber);
         return Convert.ToBase64String(randomNumber);
-    }
-
-    public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
-    {
-        var tokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateAudience = false,
-            ValidateIssuer = false,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Value.SecretKey)),
-            ValidateLifetime = false
-        };
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var securityToken);
-        if (securityToken is not JwtSecurityToken jwtSecurityToken ||
-            !jwtSecurityToken.Header.Alg.Equals(
-                SecurityAlgorithms.HmacSha256,
-                StringComparison.InvariantCultureIgnoreCase)
-           )
-        {
-            throw new SecurityTokenException("Token không hợp lệ");
-        }
-        
-        return principal;
     }
 }
