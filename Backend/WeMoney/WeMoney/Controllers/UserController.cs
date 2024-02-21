@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WeMoney.Models.Base;
 using WeMoney.Models.Constants;
+using WeMoney.Models.Entities;
 using WeMoney.Services;
 
 namespace WeMoney.Controllers;
@@ -14,8 +16,7 @@ public class UserController(UserService userService) : ControllerBase
     public async Task<IActionResult> Get()
     {
         var userId = User.FindFirst(ClaimType.Id)!.Value;
-        var number = int.Parse(userId);
         var userInfo = await userService.GetByIdAsync(userId);
-        return Ok(new { Message = "Thành công", Data = userInfo });
+        return Ok(new BaseResponse<User>(userInfo));
     }
 }
