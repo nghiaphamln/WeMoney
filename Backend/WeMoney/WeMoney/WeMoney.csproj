@@ -26,8 +26,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Helper\" />
-      <Folder Include="Logics\" />
       <Folder Include="Models\Response\" />
       <Folder Include="Utilities\" />
     </ItemGroup>
