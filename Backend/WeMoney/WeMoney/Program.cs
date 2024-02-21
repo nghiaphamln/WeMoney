@@ -66,7 +66,7 @@ builder
         {
             options.RequireHttpsMetadata = false;
             options.IncludeErrorDetails = true;
-            options.TokenValidationParameters = new TokenValidationParameters()
+            options.TokenValidationParameters = new TokenValidationParameters
             {
                 ClockSkew = TimeSpan.Zero,
                 ValidateIssuer = true,
