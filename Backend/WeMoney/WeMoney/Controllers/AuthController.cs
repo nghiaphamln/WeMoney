@@ -63,17 +63,7 @@ public class AuthController(
             return Unauthorized(new BaseResponse("Email hoặc mật khẩu không chính xác"));
         }
 
-        var claims = new List<Claim>
-        {
-            new(JwtRegisteredClaimNames.Sub, jwtSettings.Value.Subject),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
-            new(ClaimType.Id, user.Id!)
-        };
-        claims.AddRange(user.Role.Select(role => new Claim(ClaimTypes.Role, role)));
-
-        var token = tokenService.GenerateAccessToken(claims);
-        var refreshToken = tokenService.GenerateRefreshToken();
+        var (token, refreshToken) = tokenService.GenerateToken(user);
 
         user.RefreshToken = refreshToken;
         user.RefreshTokenExpiryTime = DateTime.Now.AddDays(jwtSettings.Value.JwtLifeRefreshToken);
@@ -109,18 +99,8 @@ public class AuthController(
         {
             return BadRequest(new BaseResponse("Request không hợp lệ"));
         }
-
-        var claims = new List<Claim>
-        {
-            new(JwtRegisteredClaimNames.Sub, jwtSettings.Value.Subject),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
-            new(ClaimType.Id, user.Id!)
-        };
-        claims.AddRange(user.Role.Select(role => new Claim(ClaimTypes.Role, role)));
-
-        var token = tokenService.GenerateAccessToken(claims);
-        var refreshToken = tokenService.GenerateRefreshToken();
+        
+        var (token, refreshToken) = tokenService.GenerateToken(user);
 
         user.RefreshToken = refreshToken;
         user.RefreshTokenExpiryTime = DateTime.Now.AddDays(jwtSettings.Value.JwtLifeRefreshToken);

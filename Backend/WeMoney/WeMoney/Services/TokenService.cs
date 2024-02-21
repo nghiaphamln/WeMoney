@@ -5,12 +5,30 @@ using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using WeMoney.Models.Constants;
+using WeMoney.Models.Entities;
 
 namespace WeMoney.Services;
 
 public class TokenService(IOptions<JwtSettings> jwtSettings)
 {
-    public string GenerateAccessToken(IEnumerable<Claim> claims)
+    public (string Token, string RefreshToken) GenerateToken(User user)
+    {
+        var claims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Sub, jwtSettings.Value.Subject),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
+            new(ClaimType.Id, user.Id!)
+        };
+        claims.AddRange(user.Role.Select(role => new Claim(ClaimTypes.Role, role)));
+
+        var token = GenerateAccessToken(claims);
+        var refreshToken = GenerateRefreshToken();
+
+        return (token, refreshToken);
+    }
+
+    private string GenerateAccessToken(IEnumerable<Claim> claims)
     {
         var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Value.SecretKey));
         var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
@@ -24,7 +42,7 @@ public class TokenService(IOptions<JwtSettings> jwtSettings)
         return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
     }
 
-    public string GenerateRefreshToken()
+    private static string GenerateRefreshToken()
     {
         var randomNumber = new byte[64];
         using var rng = RandomNumberGenerator.Create();
