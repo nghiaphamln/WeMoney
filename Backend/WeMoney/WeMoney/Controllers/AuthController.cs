@@ -1,13 +1,13 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.JsonWebTokens;
 using WeMoney.Models.Base;
 using WeMoney.Models.Constants;
 using WeMoney.Models.Entities;
 using WeMoney.Models.Enums;
 using WeMoney.Models.Request.Auth;
+using WeMoney.Models.Response;
+using WeMoney.Models.Response.Auth;
 using WeMoney.Services;
 
 namespace WeMoney.Controllers;
@@ -70,7 +70,7 @@ public class AuthController(
 
         await userService.UpdateAsync(user);
 
-        return Ok(new
+        return Ok(new TokenApiResponse
         {
             Token = token,
             RefreshToken = refreshToken
@@ -107,7 +107,7 @@ public class AuthController(
 
         await userService.UpdateAsync(user);
 
-        return Ok(new
+        return Ok(new TokenApiResponse
         {
             Token = token,
             RefreshToken = refreshToken

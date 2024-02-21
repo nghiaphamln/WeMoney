@@ -25,9 +25,4 @@
       </Content>
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Models\Response\" />
-      <Folder Include="Utilities\" />
-    </ItemGroup>
-
 </Project>

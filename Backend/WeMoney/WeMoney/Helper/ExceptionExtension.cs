@@ -1,10 +1,8 @@
-﻿using System.Diagnostics;
-
-namespace WeMoney.Helper;
+﻿namespace WeMoney.Helper;
 
 public static class ExceptionExtension
 {
-    public static string? GetTrimmedStackTrace(this string stackTrace)
+    public static string GetTrimmedStackTrace(this string stackTrace)
     {
         var lines = stackTrace.Split('\n');
         var relevantLines = lines.Where(line => line.Contains(".cs:") || line.Contains(".vb:"));
