@@ -1,5 +1,8 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
+using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using WeMoney.Middleware;
@@ -7,6 +10,17 @@ using WeMoney.Models.Constants;
 using WeMoney.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services
+    .AddDataProtection()
+    .SetApplicationName("WeMoneyApi")
+    .UseCryptographicAlgorithms(
+        new AuthenticatedEncryptorConfiguration
+        {
+            EncryptionAlgorithm = EncryptionAlgorithm.AES_256_CBC,
+            ValidationAlgorithm = ValidationAlgorithm.HMACSHA256
+        }
+    );
 
 // IOptions AppSettings
 builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
