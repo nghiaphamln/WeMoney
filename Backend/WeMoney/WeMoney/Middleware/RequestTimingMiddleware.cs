@@ -15,7 +15,6 @@ public class RequestTimingMiddleware(
     public async Task Invoke(HttpContext context)
     {
         var stopwatch = Stopwatch.StartNew();
-        var stringBuilder = new StringBuilder();
         Exception? exception = null;
         try
         {
@@ -32,6 +31,7 @@ public class RequestTimingMiddleware(
             if (exception is not null)
             {
                 var response = new BaseResponse(exception.Message).ToJson();
+                var stringBuilder = new StringBuilder();
                 stringBuilder.AppendLine();
                 stringBuilder.AppendLine($"Exception: {exception.Message} ");
                 stringBuilder.AppendLine($"StackTrace: {exception.StackTrace?.GetTrimmedStackTrace()} ");
