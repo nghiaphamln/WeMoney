@@ -14,6 +14,7 @@ public class UserController(UserService userService) : ControllerBase
     public async Task<IActionResult> Get()
     {
         var userId = User.FindFirst(ClaimType.Id)!.Value;
+        var number = int.Parse(userId);
         var userInfo = await userService.GetByIdAsync(userId);
         return Ok(new { Message = "Thành công", Data = userInfo });
     }

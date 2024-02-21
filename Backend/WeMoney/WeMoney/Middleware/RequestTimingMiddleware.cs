@@ -1,6 +1,9 @@
 ﻿using System.Diagnostics;
+using System.Net;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using ServiceStack;
+using WeMoney.Models.Base;
 
 namespace WeMoney.Middleware;
 
@@ -26,7 +29,7 @@ public class RequestTimingMiddleware(
             stopwatch.Stop();
             var elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
             var error = stringBuilder.ToString();
-            if (error.IsNullOrEmpty())
+            if (CollectionUtilities.IsNullOrEmpty(error))
             {
                 logger.LogInformation("[{ProcessTime}ms] [{Status}] {RequestPath}", 
                     elapsedMilliseconds, context.Response.StatusCode, context.Request.Path);
@@ -35,6 +38,10 @@ public class RequestTimingMiddleware(
             {
                 logger.LogCritical("[{ProcessTime}ms] [{Status}] {RequestPath} {Error}", 
                     elapsedMilliseconds, context.Response.StatusCode, context.Request.Path, error);
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                context.Response.ContentType = "application/json";
+                var response = new BaseResponse(error).ToJson();
+                await context.Response.WriteAsync(response);
             }
         }
     }
